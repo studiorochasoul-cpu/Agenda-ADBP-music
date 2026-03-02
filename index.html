@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Musical ADBP 2026</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ADBP 2026">
+    
+    <link rel="apple-touch-icon" href="https://drive.google.com/uc?id=1n6W1rUs82GjkWbk-7woInJPwt2Qc59qt">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark body { background-color: #020617; }
+        .light body { background-color: #e0f2fe; }
+
+        #sidebar { transition: transform 0.3s ease-in-out; z-index: 100; }
+        #sidebar-overlay { transition: opacity 0.3s ease-in-out; z-index: 90; }
+
+        .event-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 135px; 
+            overflow: hidden;
+        }
+
+        .event-card.expanded {
+            max-height: 3000px; 
+            transform: translateY(-4px);
+            border-width: 2px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #toast {
+            visibility: hidden; min-width: 250px; margin-left: -125px;
+            background-color: #0f172a; color: #fff; text-align: center;
+            border-radius: 16px; padding: 16px; position: fixed;
+            z-index: 110; left: 50%; bottom: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+            50% { transform: translateY(-10px) rotate(10deg); opacity: 0.2; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+        }
+        .floating-note { animation: float 6s ease-in-out infinite; }
+        
+        .adbp-brand-badge {
+            background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #3b82f6 100%);
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.4);
+        }
+
+        .creative-title {
+            background: linear-gradient(to bottom, #ffffff 40%, #bfdbfe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .big-days-count {
+            font-size: 2rem;
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .scale-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 6px 10px;
+            align-items: center;
+        }
+
+        /* Ajuste para botões de aba com nomes longos */
+        .tab-button {
+            font-size: 9px;
+            letter-spacing: -0.02em;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+        @media (min-width: 400px) {
+            .tab-button { font-size: 10px; }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-10 transition-colors duration-300">
+
+    <div id="toast">Ação concluída!</div>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none" onclick="toggleSidebar()"></div>
+    
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white dark:bg-slate-900 shadow-2xl -translate-x-full flex flex-col transition-colors">
+        <div class="p-6 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+            <h3 class="font-black text-blue-900 dark:text-blue-400 uppercase tracking-tighter text-sm">Acervos Gerais</h3>
+            <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                <i data-lucide="x" class="w-6 h-6 text-gray-500"></i>
+            </button>
+        </div>
+        <div class="p-4 space-y-4">
+            <a href="https://drive.google.com/drive/folders/1ZNQBRBt6MAXRHaA_RorZFhLCUROI5BBv" target="_blank" class="flex items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
+                <div class="p-3 bg-blue-600 text-white rounded-xl mr-4 shadow-md"><i data-lucide="folder-key" class="w-5 h-5"></i></div>
+                <div class="flex-1">
+                    <span class="block font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight leading-tight text-xs">Kit de voz Geral</span>
+                    <span class="text-[9px] text-blue-400 font-bold uppercase tracking-widest">Google Drive</span>
+                </div>
+            </a>
+            <a href="https://drive.google.com/drive/folders/1UPGq4alqSiaMnKewANR0Ac9NshaDRLqh" target="_blank" class="flex items-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+                <div class="p-3 bg-emerald-600 text-white rounded-xl mr-4 shadow-md"><i data-lucide="folder-music" class="w-5 h-5"></i></div>
+                <div class="flex-1">
+                    <span class="block font-black text-emerald-900 dark:text-emerald-100 uppercase tracking-tight leading-tight text-xs">Partituras Geral</span>
+                    <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">Google Drive</span>
+                </div>
+            </a>
+        </div>
+        <div class="p-4 mt-4 border-t border-gray-100 dark:border-slate-800">
+            <button onclick="toggleDarkMode()" class="w-full flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl transition-all">
+                <span class="text-xs font-black uppercase text-slate-600 dark:text-slate-300">Modo Escuro</span>
+                <i id="dark-icon" data-lucide="moon" class="w-5 h-5 text-slate-600 dark:text-blue-400"></i>
+            </button>
+        </div>
+    </aside>
+
+    <header class="bg-[#0f172a] text-white pt-8 pb-8 px-6 shadow-2xl relative overflow-hidden text-center transition-all duration-500">
+        <div class="absolute top-2 left-10 text-white/10 floating-note" style="animation-delay: 0s;"><i data-lucide="music" class="w-8 h-8"></i></div>
+        <div class="absolute top-12 right-12 text-white/10 floating-note" style="animation-delay: 2s;"><i data-lucide="mic-2" class="w-6 h-6"></i></div>
+        <div class="absolute bottom-2 left-1/4 text-white/10 floating-note" style="animation-delay: 4s;"><i data-lucide="audio-lines" class="w-10 h-10"></i></div>
+
+        <button onclick="toggleSidebar()" class="absolute top-5 left-5 p-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl z-30 active:scale-90 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+        </button>
+
+        <div class="max-w-5xl mx-auto flex flex-col items-center relative z-10">
+            <div class="mb-4 relative group cursor-pointer" onclick="toggleDarkMode()">
+                <div class="w-14 h-14 md:w-16 md:h-16 adbp-brand-badge rounded-xl flex flex-col items-center justify-center p-2 border border-white/20 relative transition-transform group-active:scale-95 shadow-2xl">
+                    <div class="relative flex flex-col items-center text-center text-white">
+                        <i data-lucide="calendar" class="w-6 h-6 md:w-7 md:h-7"></i>
+                        <span class="mt-1 font-black text-[10px] tracking-tighter uppercase">ADBP</span>
+                    </div>
+                </div>
+            </div>
+            <h1 class="creative-title text-2xl md:text-4xl font-black uppercase leading-none tracking-tight">Agenda Musical</h1>
+            <p class="mt-2 text-[7px] md:text-[9px] font-black uppercase tracking-[0.4em] text-blue-400/70">ADBP 2026</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 mt-6">
+        <div id="install-container" class="hidden mb-6">
+            <button id="install-button" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest shadow-xl flex items-center justify-center space-x-3 active:scale-95 transition-all">
+                <i data-lucide="download-cloud"></i>
+                <span class="text-sm">Instalar Aplicativo ADBP</span>
+            </button>
+        </div>
+        <div id="events-grid" class="grid gap-4 sm:grid-cols-1 md:grid-cols-2"></div>
+    </main>
+
+    <footer class="mt-10 mb-8 text-center px-6">
+        <p class="text-[9px] font-black uppercase tracking-[0.3em] text-blue-900/30 dark:text-slate-700">
+            Criado por: <span class="text-blue-900/50 dark:text-slate-500 font-black uppercase">Rocha Soul Music</span>
+        </p>
+    </footer>
+
+    <script>
+        let selectedEventId = null;
+        const activeTabs = {};
+
+        function toggleSidebar() {
+            const s = document.getElementById('sidebar');
+            const o = document.getElementById('sidebar-overlay');
+            if (s.classList.contains('-translate-x-full')) {
+                s.classList.remove('-translate-x-full');
+                o.classList.remove('opacity-0', 'pointer-events-none');
+                o.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                s.classList.add('-translate-x-full');
+                o.classList.remove('opacity-100', 'pointer-events-auto');
+                o.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('dark-mode', isDark);
+            updateDarkIcon(isDark);
+        }
+
+        function updateDarkIcon(isDark) {
+            const icon = document.getElementById('dark-icon');
+            if (icon) icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            lucide.createIcons();
+        }
+
+        if (localStorage.getItem('dark-mode') === 'true') document.documentElement.classList.add('dark');
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error'));
+            });
+        }
+
+        const events = [
+            { id: 1, date: '2026-03-14', name: 'Bem Dizia', icon: 'music-4', color: 'indigo', links: { repertorio: [], kitVoz: [], partituras: [], escala: [] } },
+            { 
+                id: 2, date: '2026-04-04', name: 'Irmãs', icon: 'users-2', color: 'rose',
+                links: { 
+                    repertorio: [
+                        { url: 'https://youtu.be/Oir_MMxP0MY?si=fVvOS7xEzthyvzvY' }, 
+                        { url: 'https://youtu.be/Gcc8XRR3Opw?si=Ybh2XsYyj6dvt0-f' },
+                        { url: 'https://youtu.be/SsV7jKeIhfQ?si=qcjDRZ_MUKmhyvBD' },
+                        { url: 'https://youtu.be/i4slDe0gtMk?si=VdFoOwUIgPmatuOf' },
+                        { url: 'https://www.youtube.com/watch?v=6n4ATSY_I1w' }
+                    ], 
+                    kitVoz: [
+                        { url: 'https://drive.google.com/drive/folders/1gNwmjPlbdoSx6PvRHcu6Dt0jSmv72hSc', label: 'Kit de Voz Irmãs' }
+                    ], 
+                    partituras: [
+                        { url: 'https://drive.google.com/drive/folders/1X28tgx7ZmJYHlxEm34HBh9V2ITU2bVVt', label: 'Partituras Irmãs' }
+                    ],
+                    escala: [
+                        { hino: 'Poder da Oração', escala: { Bateria: 'Lucas', Guitarra: 'Daniel', Violão: 'Rayane', Baixo: 'Marcos', Teclado: 'Rebeca' } },
+                        { hino: 'Tome Posse', escala: { Bateria: 'Lucas', Guitarra: 'Daniel', Violão: 'Kesia', Baixo: 'Marcos', Teclado: 'Rayssa' } },
+                        { hino: 'Eu Te Adorarei', escala: { Bateria: 'Lucas', Guitarra: 'Daniel', Violão: 'Rayane', Baixo: 'Marcos', Teclado: 'Beatriz' } },
+                        { hino: 'Vou Marchar', escala: { Bateria: 'Esron', Guitarra: 'Daniel', Violão: 'Flávio', Baixo: 'Misael', Teclado: 'Guilherme' } },
+                        { hino: 'Medley', escala: { Bateria: 'Pedro Henrique', Guitarra: 'Daniel', Violão: 'Flávio', Baixo: 'Misael', Teclado: 'Kesia' } }
+                    ] 
+                } 
+            },
+            { id: 3, date: '2026-05-23', name: 'Jovens e Adolescentes', icon: 'zap', color: 'orange', links: { repertorio: [], kitVoz: [], partituras: [], escala: [] } },
+            { id: 4, date: '2026-06-27', name: 'Missões', icon: 'globe-2', color: 'emerald', links: { repertorio: [], kitVoz: [], partituras: [], escala: [] } },
+            { id: 5, date: '2026-08-15', name: 'Festa do Milho', icon: 'wheat', color: 'amber', links: { repertorio: [], kitVoz: [], partituras: [], escala: [] } },
+            { id: 6, date: '2026-09-19', name: 'Varões', icon: 'shield-check', color: 'blue', links: { repertorio: [], kitVoz: [], partituras: [], escala: [] } },
+            { id: 7, date: '2026-10-17', name: 'Crianças', icon: 'palette', color: 'sky', links: { repertorio: [], kitVoz: [], partituras: [], escala: [] } },
+            { 
+                id: 8, date: '2026-11-07', name: 'Aviva Som', icon: 'mic-2', color: 'fuchsia', 
+                links: { 
+                    repertorio: [
+                        { url: 'https://music.youtube.com/watch?v=Lb1vQgqwzu8&si=hhCrPyCeBmEvsld2' }
+                    ], 
+                    kitVoz: [], partituras: [], 
+                    escala: [
+                        { hino: 'Eis Que Eu Faço', escala: { Bateria: '-', Guitarra: '-', Violão: '-', Baixo: '-', Teclado: '-' } }
+                    ] 
+                } 
+            }
+        ];
+
+        const colorMap = {
+            indigo: { text: 'text-indigo-700', iconBg: 'bg-indigo-600', ring: 'ring-indigo-500' },
+            rose: { text: 'text-rose-700', iconBg: 'bg-rose-600', ring: 'ring-rose-500' },
+            orange: { text: 'text-orange-700', iconBg: 'bg-orange-600', ring: 'ring-orange-500' },
+            emerald: { text: 'text-emerald-700', iconBg: 'bg-emerald-600', ring: 'ring-emerald-500' },
+            amber: { text: 'text-amber-700', iconBg: 'bg-amber-600', ring: 'ring-amber-500' },
+            blue: { text: 'text-blue-700', iconBg: 'bg-blue-600', ring: 'ring-blue-500' },
+            sky: { text: 'text-sky-700', iconBg: 'bg-sky-600', ring: 'ring-sky-500' },
+            fuchsia: { text: 'text-fuchsia-700', iconBg: 'bg-fuchsia-600', ring: 'ring-fuchsia-500' }
+        };
+
+        function downloadMp3(url, e) {
+            e.stopPropagation();
+            window.open(`https://loader.to/api/button/?url=${encodeURIComponent(url)}&f=mp3`, '_blank');
+        }
+
+        function renderAll() {
+            const now = new Date();
+            const grid = document.getElementById('events-grid');
+            grid.innerHTML = '';
+            events.forEach((event) => {
+                if (!activeTabs[event.id]) activeTabs[event.id] = 'repertorio';
+                const eventDate = new Date(event.date + 'T00:00:00');
+                const diffDays = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+                const colors = colorMap[event.color];
+                const isSelected = selectedEventId === event.id;
+                
+                let statusContent = diffDays > 0 ? `<div class="flex flex-col items-center leading-none"><span class="text-[9px] font-black uppercase opacity-60 mb-1">FALTAM</span><span class="${colors.text} big-days-count">${diffDays}</span><span class="text-[10px] font-bold uppercase opacity-60">DIAS</span></div>` : (diffDays === 0 ? '<span class="font-black text-sm text-white">HOJE!</span>' : '<span class="font-bold text-xs uppercase text-white">OK</span>');
+                let statusClasses = diffDays === 0 ? 'bg-green-600 text-white animate-pulse' : (diffDays < 0 ? 'bg-gray-200 dark:bg-slate-800 text-gray-400' : (isSelected ? 'bg-white dark:bg-slate-800 shadow-inner' : 'bg-gray-50 dark:bg-slate-800/50 text-gray-500 font-bold'));
+                
+                const card = document.createElement('div');
+                card.onclick = () => { selectedEventId = isSelected ? null : event.id; renderAll(); };
+                card.className = `event-card bg-white dark:bg-slate-900 rounded-[1.5rem] border border-gray-100 dark:border-slate-800 shadow-md flex flex-col cursor-pointer transition-all duration-500 ${isSelected ? `expanded ring-4 ${colors.ring}` : 'opacity-95'}`;
+                
+                card.innerHTML = `
+                    <div class="p-4 flex items-center justify-between min-h-[135px]">
+                        <div class="flex items-center space-x-4">
+                            <div class="p-4 ${colors.iconBg} text-white rounded-2xl shadow-lg transition-all ${isSelected ? 'scale-110' : ''}"><i data-lucide="${event.icon}" class="w-8 h-8 md:w-8 md:h-8"></i></div>
+                            <div>
+                                <h3 class="text-sm font-black text-gray-900 dark:text-white leading-tight truncate max-w-[150px] uppercase">${event.name}</h3>
+                                <p class="text-[11px] font-black uppercase text-gray-400 dark:text-slate-500">${event.date.split('-')[2]} ${['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][parseInt(event.date.split('-')[1])-1]}</p>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 rounded-[2rem] flex flex-col items-center justify-center min-w-[85px] transition-all border border-gray-100 dark:border-slate-700 shadow-sm ${statusClasses}">${statusContent}</div>
+                    </div>
+                    <div class="px-4 pb-5 pt-1 transition-opacity duration-500 ${isSelected ? 'opacity-100' : 'opacity-0'}">
+                        <div class="flex space-x-1 bg-gray-100 dark:bg-slate-800 p-1.5 rounded-2xl mb-4 overflow-x-auto no-scrollbar">
+                            <button onclick="event.stopPropagation(); activeTabs[${event.id}]='repertorio'; renderAll();" class="tab-button flex-1 py-3 font-black uppercase text-center rounded-xl transition-all ${activeTabs[event.id] === 'repertorio' ? `bg-white dark:bg-slate-700 ${colors.text} shadow-sm` : 'text-gray-400'}">Repertório</button>
+                            <button onclick="event.stopPropagation(); activeTabs[${event.id}]='kitVoz'; renderAll();" class="tab-button flex-1 py-3 font-black uppercase text-center rounded-xl transition-all ${activeTabs[event.id] === 'kitVoz' ? `bg-white dark:bg-slate-700 ${colors.text} shadow-sm` : 'text-gray-400'}">Kit de Voz</button>
+                            <button onclick="event.stopPropagation(); activeTabs[${event.id}]='partituras'; renderAll();" class="tab-button flex-1 py-3 font-black uppercase text-center rounded-xl transition-all ${activeTabs[event.id] === 'partituras' ? `bg-white dark:bg-slate-700 ${colors.text} shadow-sm` : 'text-gray-400'}">Partituras</button>
+                            <button onclick="event.stopPropagation(); activeTabs[${event.id}]='escala'; renderAll();" class="tab-button flex-1 py-3 font-black uppercase text-center rounded-xl transition-all ${activeTabs[event.id] === 'escala' ? `bg-white dark:bg-slate-700 ${colors.text} shadow-sm` : 'text-gray-400'}">Escala</button>
+                        </div>
+                        <div class="space-y-3 min-h-[160px]">${getTabContent(event, activeTabs[event.id], colors)}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function getTabContent(event, tab, colors) {
+            const data = event.links[tab];
+            if (!data || data.length === 0) return `<div class="py-10 text-center opacity-30 text-gray-400 font-bold uppercase text-[12px]">Em breve</div>`;
+            
+            if (tab === 'escala' && typeof data[0] === 'object' && data[0].hino) {
+                return data.map((item, idx) => `
+                    <div class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 mb-3 text-left">
+                        <h4 class="text-[13px] font-black text-blue-700 dark:text-blue-400 uppercase mb-3 border-b border-blue-100 dark:border-blue-900/30 pb-2">
+                           Música ${idx + 1} - ${item.hino}
+                        </h4>
+                        <div class="scale-grid">
+                            ${Object.entries(item.escala).map(([inst, mus]) => `
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${inst}:</span>
+                                <span class="text-[12px] font-extrabold text-gray-800 dark:text-white uppercase">${mus}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            return data.map((link, idx) => {
+                const urlStr = link.url || link;
+                const ytMatch = urlStr.toString().match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|music\/|music\.youtube\.com\/watch\?v=))([^#\&\?]*)/);
+                const ytId = ytMatch ? ytMatch[1] : null;
+                let label = link.label || (tab === 'partituras' ? `Pasta de Partituras` : (tab === 'repertorio' ? `Música ${idx + 1}` : `Pasta Kit de Voz`));
+                return `
+                    <div class="flex items-center space-x-2">
+                        <a href="${urlStr}" target="_blank" onclick="event.stopPropagation()" class="flex-1 flex items-center bg-gray-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-gray-100 dark:border-slate-800 transition-all">
+                            ${ytId ? `<div class="w-16 h-12 rounded-xl overflow-hidden mr-3 bg-black flex-shrink-0 shadow-md"><img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" class="w-full h-full object-cover"></div>` : `<div class="p-3 bg-white dark:bg-slate-700 rounded-xl mr-3 shadow-md text-blue-600 transition-colors"><i data-lucide="${tab === 'kitVoz' ? 'mic' : 'file-text'}" class="w-5 h-5"></i></div>`}
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[12px] font-black text-gray-800 dark:text-white uppercase truncate block group-hover:${colors.text}">${label}</span>
+                                <span class="text-[9px] text-gray-400 dark:text-slate-500 font-bold uppercase">Toque para abrir</span>
+                            </div>
+                        </a>
+                        ${ytId ? `<button onclick="downloadMp3('${urlStr}', event)" class="download-btn p-4 bg-white dark:bg-slate-800 text-emerald-600 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 active:scale-90" title="Baixar Áudio"><i data-lucide="download" class="w-5 h-5"></i></button>` : ''}
+                    </div>`;
+            }).join('');
+        }
+        renderAll();
+        setInterval(renderAll, 60000);
+    </script>
+</body>
+</html>
+
